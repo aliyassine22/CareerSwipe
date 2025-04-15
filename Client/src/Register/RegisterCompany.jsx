@@ -20,7 +20,6 @@ export default function RegisterCompany() {
     companyWebsite: '',
     companySize: '',
     headOfficeLocation: '',
-    companyLogo: null,
     rolesHiringFor: '',
     employmentTypes: [],
     businessLicenseNumber: '',
@@ -37,24 +36,14 @@ export default function RegisterCompany() {
       [id]: type === 'checkbox' ? checked : value,
     }));
   }
-
-  function handleFileChange(event) {
-    setFormData((prev) => ({
-      ...prev,
-      companyLogo: event.target.files[0],
-    }));
-  }
-
   function register(ev) {
     ev.preventDefault();
-
-    const dataToSend = new FormData();
-    for (const key in formData) {
-      dataToSend.append(key, formData[key]);
-    }
-
-    axios
-      .post('/RegisterJobSeeker', dataToSend, { withCredentials: true })
+    axios.post('http://localhost:4000/auth/register/company', formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
       .then((res) => {
         console.log('Response:', res.data);
         navigate('/login');
@@ -63,6 +52,7 @@ export default function RegisterCompany() {
         console.error('Error:', err.response ? err.response.data : err.message);
       });
   }
+  
 
 //////////////////////////////////////////////////////////////
 
@@ -138,21 +128,6 @@ export default function RegisterCompany() {
             onChange={handleInputChange}
             required
           />
-
-          {/* Company Logo Upload */}
-          <div>
-            <label htmlFor="companyLogo" className="block text-sm font-medium text-gray-700 mb-2">
-              Upload Company Logo
-            </label>
-            <input
-              type="file"
-              id="companyLogo"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="w-full"
-            />
-          </div>
-
           {/* Agreement Checkbox */}
           <div className="flex items-center">
             <input

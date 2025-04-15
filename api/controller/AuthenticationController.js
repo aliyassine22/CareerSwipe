@@ -1,0 +1,111 @@
+import express from "express";
+import Company from "../models/Company.js";
+import JobSeeker from "../models/JobSeeker.js";
+import bcrypt from "bcryptjs";
+import multer from "multer";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+const bcryptSalt = 10; // Define the salt rounds for bcrypt
+
+
+
+
+const registerCompany=async (req, res) => {
+  const {
+    fullName, // representative's name – not used in this snippet unless you add a field
+    email,
+    password,
+    industry,
+    companyWebsite,
+    phone,
+    companySize,
+    headOfficeLocation,
+    rolesHiringFor,
+    employmentTypes,
+    businessLicenseNumber,
+    linkedInProfile
+  } = req.body;
+  
+  try {
+    const userDoc = await Company.create({
+      // Map the form data to your Company schema fields.
+      fullName, // From the form (ensuring this key exists in the formData)
+      email,
+      password: bcrypt.hashSync(password, bcryptSalt),
+      industry,
+      companyWebsite,
+      phone,
+      companySize,
+      headOfficeLocation,
+      // If rolesHiringFor and employmentTypes come as comma-separated strings, split them into arrays.
+      rolesHiringFor: typeof rolesHiringFor === 'string'
+        ? rolesHiringFor.split(',').map(item => item.trim())
+        : rolesHiringFor,
+      employmentTypes: typeof employmentTypes === 'string'
+        ? employmentTypes.split(',').map(item => item.trim())
+        : employmentTypes,
+      businessLicenseNumber,
+      linkedInProfile
+      // The userType defaults to "company" per your schema.
+    });
+    res.json(userDoc);
+    return res.status(200).send('Registration successful.');
+  } catch (e) {
+    console.error("Error in registering user:", e);
+  }
+};
+
+
+const registerJobSeekerMiddleware = upload.single('cvFile');
+const registerJobSeeker = async (req, res) => {
+  // Get the fields from the request body
+  const  {
+    name,
+    email,
+    password,
+    phone_number,
+    date_of_birth,
+    desiredJobTitle,
+    experienceLevel,
+    education,
+    skills
+  } = req.body;
+
+  // Log endpoint hit for debugging
+  console.log("test endpoint");
+
+  try {
+    // Create a new JobSeeker document. Use req.file to access the uploaded file.
+    const userDoc = await JobSeeker.create({
+      name,
+      email,
+      password: bcrypt.hashSync(password, bcryptSalt),
+      phone_number,
+      date_of_birth,
+      desiredJobTitle,
+      experienceLevel,
+      education,
+      skills: typeof skills === 'string'
+        ? skills.split(',').map(item => item.trim())
+        : skills,
+      // Save CV file as a buffer and include metadata
+      cvFile: {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+        originalName: req.file.originalname
+      }
+    });
+
+    res.json(userDoc);
+  } catch (e) {
+    console.error(e.message);
+    res.status(422).json(e);
+  }
+};
+
+export default { registerCompany, registerJobSeeker,registerJobSeekerMiddleware };

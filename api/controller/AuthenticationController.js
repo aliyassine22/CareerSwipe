@@ -108,5 +108,65 @@ const registerJobSeeker = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  const { email, password } = req.body;
 
-export default { registerCompany, registerJobSeeker,registerJobSeekerMiddleware };
+  try {
+    // Try to find the user in both JobSeeker and Company collections
+    let user = await JobSeeker.findOne({ email });
+    let userType = 'seeker';
+
+    if (!user) {
+      user = await Company.findOne({ email });
+      userType = 'company';
+    }
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Check password
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Create JWT token
+    const token = jwt.sign(
+      { userId: user._id, userType },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '24h' }
+    );
+
+    // Set token in cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
+
+    // Send success response
+    res.json({
+      success: true,
+      user: {
+        name: user.name || user.fullName,
+        email: user.email,
+        userType
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred during login'
+    });
+  }
+};
+
+export default { registerCompany, registerJobSeeker, registerJobSeekerMiddleware, login };

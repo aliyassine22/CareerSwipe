@@ -23,15 +23,20 @@ export default function  LoginPage() {
 
             const result = await response.json();
 
-            if (result.success) {
-                alert(`Welcome, ${result.user.name}!`);
-        if(result.user.userType=='seeker'){
-                navigate('/accountpage'); }// Redirect to the index page
-        else{
-            navigate('/CompanyPage')
-        }
+            if (!response.ok) {
+                setError('Invalid email or password');
+                return;
+            }
+
+            const { userType, userId } = result;
+            // Store user ID in localStorage
+            localStorage.setItem('userId', userId);
+            
+            // Redirect based on user type
+            if (userType === 'seeker') {
+                navigate('/seeker/profile');
             } else {
-                setError(result.message || 'Login failed');
+                navigate('/company/profile');
             }
         } catch (error) {
             console.error('Error logging in:', error);

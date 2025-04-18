@@ -154,15 +154,20 @@ const login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     });
 
-    // Send success response
-    res.json({
-      success: true,
-      user: {
-        name: user.name || user.fullName,
-        email: user.email,
-        userType
-      }
-    });
+    // Determine user type and send appropriate response
+    if (user.constructor.modelName === 'JobSeeker') {
+      res.json({
+        message: "Login successful",
+        userType: 'seeker',
+        userId: user._id
+      });
+    } else {
+      res.json({
+        message: "Login successful",
+        userType: 'company',
+        userId: user._id
+      });
+    }
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({

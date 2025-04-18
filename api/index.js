@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import multer from "multer";
 import AuthenticationRoutes from "./Router/userRoutes/AuthenticationRoutes.js";
+import seekerRoutes from "./Router/userRoutes/seekerRoutes.js";
 import CompanyRoutes from "./Router/companyRoutes.js";
 import JobRoutes from "./Router/jobRoutes.js";
 
@@ -52,6 +53,7 @@ mongoose.connect(process.env.MongoUrl)
 
 // Routes
 app.use('/auth', AuthenticationRoutes);
+app.use('/seeker', seekerRoutes);
 app.use('/company', CompanyRoutes);
 app.use('/company/jobs', JobRoutes);
 

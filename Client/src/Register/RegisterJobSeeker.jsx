@@ -2,10 +2,12 @@
     import { useState } from 'react';
     import { useNavigate } from 'react-router-dom';
     import axios from 'axios';
-    import Input from '../Components/Input';
-    import SubmitButton from '../Components/SubmitButton';
+    import Input from '../Components/AuthComponents/Input';
+    import SubmitButton from '../Components/AuthComponents/SubmitButton';
 
     export default function RegisterJobSeeker() {
+      const [confirmPassword, setConfirmPassword] = useState('');
+      const [passwordError, setPasswordError] = useState('');
       const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -39,6 +41,12 @@
 
       function register(ev) {
         ev.preventDefault();
+
+        if (formData.password !== confirmPassword) {
+          setPasswordError('Passwords do not match');
+          return;
+        }
+        setPasswordError('');
         // Create a FormData object
         const data = new FormData();
         
@@ -96,6 +104,29 @@
                 onChange={handleInputChange}
                 required
               />
+               <div className="space-y-4">
+                <Input
+                  label="Password"
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                />
+                <Input
+                  label="Confirm Password"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                {passwordError && (
+                  <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+                )}
+              </div>
+
               <Input
                 label="Phone Number"
                 id="phone_number"
@@ -126,6 +157,7 @@
                 placeholder="e.g., Entry, Mid, Senior"
                 value={formData.experienceLevel}
                 onChange={handleInputChange}
+                required
               />
               <Input
                 label="Highest Education"
@@ -133,6 +165,7 @@
                 placeholder="e.g., B.Sc. in Computer Science"
                 value={formData.education}
                 onChange={handleInputChange}
+                required
               />
               <Input
                 label="Key Skills"
@@ -140,17 +173,9 @@
                 placeholder="e.g., React, Python, SQL"
                 value={formData.skills}
                 onChange={handleInputChange}
-              />
-              <Input
-                label="Password"
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleInputChange}
                 required
               />
-
+             
               {/* File Upload */}
               <div>
                 <label htmlFor="cvFile" className="block text-sm font-medium text-gray-700 mb-2">

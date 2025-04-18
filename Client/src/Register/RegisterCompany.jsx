@@ -5,16 +5,17 @@ import axios from 'axios';
 
 // Custom Components
 import Input from '../Components/AuthComponents/Input';
-import SubmitButton from '../Components/SubmitButton';
+import SubmitButton from "../Components/AuthComponents/SubmitButton";
 
 export default function RegisterCompany() {
   const navigate = useNavigate();
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
     password: '',
-    confirmPassword: '',
     companyName: '',
     industry: '',
     companyWebsite: '',
@@ -38,6 +39,14 @@ export default function RegisterCompany() {
   }
   function register(ev) {
     ev.preventDefault();
+    
+    // Check if passwords match
+    if (formData.password !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+    setPasswordError('');
+    
     axios.post('http://localhost:4000/auth/register/company', formData, {
         withCredentials: true,
         headers: {
@@ -124,12 +133,15 @@ export default function RegisterCompany() {
             id="confirmPassword"
             type="password"
             placeholder="Re-enter your password"
-            value={formData.confirmPassword}
-            onChange={handleInputChange}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
+          {passwordError && (
+            <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+          )}
           {/* Agreement Checkbox */}
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <input
               type="checkbox"
               id="agreeToTerms"
@@ -140,7 +152,7 @@ export default function RegisterCompany() {
             <label htmlFor="agreeToTerms" className="text-sm text-gray-700">
               I agree to the Terms of Service and Privacy Policy
             </label>
-          </div>
+          </div> */}
 
           {/* Submit Button */}
           <div className="text-center">

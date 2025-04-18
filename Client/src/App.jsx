@@ -5,7 +5,7 @@ import RegisterJobSeeker from "./Register/RegisterJobSeeker";
 import RegisterCompany from "./Register/RegisterCompany";
 import RegisterPage from "./Register/RegisterPage";
 import LoginPage from "./Login/LoginPage";
-import SeekerProfile from "./pages/SeekerProfile";
+import SeekerProfile from "./SeekerPage/SeekerProfile";
 import CompanyPage from "./CompanyPage/CompanyPage";
 
 

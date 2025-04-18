@@ -1,19 +1,28 @@
 import express from 'express';
-import { authenticateToken } from '../middleware/auth.js';
-import JobController from '../controller/JobController.js';
+import { 
+  createJobPosting, 
+  getAllJobPostings, 
+  getJobPostingById, 
+  updateJobPosting, 
+  deleteJobPosting 
+} from '../controller/JobController.js';
+import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Protected routes (require authentication)
-router.use(authenticateToken);
+// Get all job postings
+router.get('/', getAllJobPostings);
 
-// Create a new job posting
-router.post('/', JobController.createJobPosting);
+// Get job posting by ID
+router.get('/:id', getJobPostingById);
 
-// Get all job postings for a company
-router.get('/company', JobController.getCompanyJobPostings);
+// Create new job posting (requires authentication)
+router.post('/', auth, createJobPosting);
 
-// Close a job posting
-router.put('/:jobId/close', JobController.closeJobPosting);
+// Update job posting (requires authentication)
+router.put('/:id', auth, updateJobPosting);
+
+// Delete job posting (requires authentication)
+router.delete('/:id', auth, deleteJobPosting);
 
 export default router;

@@ -1,7 +1,7 @@
 import Company from '../models/Company.js';
 import bcrypt from 'bcryptjs';
 
-const updateCompanyProfile = async (req, res) => {
+export const updateCompanyProfile = async (req, res) => {
   try {
     const companyId = req.user.userId; // From auth middleware
     const {
@@ -63,7 +63,7 @@ const updateCompanyProfile = async (req, res) => {
   }
 };
 
-const getCompanyProfile = async (req, res) => {
+export const getCompanyProfile = async (req, res) => {
   try {
     const companyId = req.user.userId;
     const company = await Company.findById(companyId).select('-password');
@@ -89,7 +89,4 @@ const getCompanyProfile = async (req, res) => {
   }
 };
 
-export default {
-  updateCompanyProfile,
-  getCompanyProfile
-};
+// Export functions directly using named exports above

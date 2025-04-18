@@ -46,7 +46,9 @@ app.use(
 );
 
 // MongoDB connection string
-mongoose.connect(process.env.MongoUrl)
+const mongoUrl = "mongodb+srv://ali123:ali321987@ac-qhiyeui.2v6kk0m.mongodb.net/?retryWrites=true&w=majority";
+
+mongoose.connect(mongoUrl)
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
@@ -63,22 +65,6 @@ app.use(session({
   saveUninitialized: false,
   cookie: { secure:false,maxAge: 24 * 60 * 60 * 1000 }, // 1 day
 }));
-
-
-// app.get('/getCV', async (req, res) => {
-//   try {
-//     // Replace this with your actual logic for retrieving the authenticated user's CV.
-//     // For example, by looking up the user based on their session or a token.
-//     const jobSeeker = await JobSeeker.findOne({ email: 'a.yassine2@outlook.com' }); // adjust as needed
-//     if (!jobSeeker || !jobSeeker.cvFile || !jobSeeker.cvFile.data) {
-//       return res.status(404).json({ error: 'CV not found' });
-//     }
-//     res.set('Content-Type', jobSeeker.cvFile.contentType);
-//     res.send(jobSeeker.cvFile.data);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
 
 
 app.listen(4000, () => {

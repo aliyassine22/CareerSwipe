@@ -6,6 +6,7 @@ import RegisterCompany from "./Register/RegisterCompany";
 import RegisterPage from "./Register/RegisterPage";
 import LoginPage from "./Login/LoginPage";
 import SeekerProfile from "./SeekerPage/SeekerProfile";
+import SwipePage from "./SeekerPage/SwipePage";
 import CompanyPage from "./CompanyPage/CompanyPage";
 
 
@@ -17,6 +18,7 @@ function App() {
       <Route path="/Register/RegisterJobSeeker" element={<RegisterJobSeeker />} />
       <Route path="/Register/RegisterCompany" element={<RegisterCompany />} />
       <Route path="/seeker/profile" element={<SeekerProfile />} />
+      <Route path="/seeker/swipe" element={<SwipePage />} />
       <Route path="/Login" element={<LoginPage />} />
       <Route path="/CompanyPage" element={<CompanyPage />} />
     </Routes>

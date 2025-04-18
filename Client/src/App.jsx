@@ -48,6 +48,7 @@ function App() {
         <Route path="/seeker/profile"               element={<SeekerProfile />} />
         <Route path="/seeker/swipe"                 element={<SwipePage />} />
         <Route path="/CompanyPage"                  element={<CompanyPage />} />
+        <Route path="/company/profile"              element={<CompanyPage />} />
       </Routes>
     </>
   );

@@ -108,4 +108,5 @@ const registerJobSeeker = async (req, res) => {
   }
 };
 
+
 export default { registerCompany, registerJobSeeker,registerJobSeekerMiddleware };

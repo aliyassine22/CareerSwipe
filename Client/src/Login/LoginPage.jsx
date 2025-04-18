@@ -28,7 +28,7 @@ export default function  LoginPage() {
         if(result.user.userType=='seeker'){
                 navigate('/accountpage'); }// Redirect to the index page
         else{
-            navigate('/Companypage')
+            navigate('/CompanyPage')
         }
             } else {
                 setError(result.message || 'Login failed');

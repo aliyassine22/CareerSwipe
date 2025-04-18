@@ -6,7 +6,7 @@ import RegisterJobSeeker from "./Register/RegisterJobSeeker";
 import RegisterCompany from "./Register/RegisterCompany";
 import RegisterPage from "./Register/RegisterPage";
 import LoginPage from "./Login/LoginPage";
-
+import CompanyPage from "./CompanyPage/CompanyPage";
 
 function App() {
   return (
@@ -16,8 +16,8 @@ function App() {
       <Route path="/Register/RegisterJobSeeker" element={<RegisterJobSeeker />} />
       <Route path="/Register/RegisterCompany" element={<RegisterCompany />} />
       <Route path="/Login" element={<LoginPage />} />
+      <Route path="/CompanyPage" element={<CompanyPage />} />
     </Routes>
     );
   }
 export default App;
-  

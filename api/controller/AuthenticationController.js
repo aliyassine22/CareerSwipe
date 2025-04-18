@@ -53,8 +53,11 @@ const registerCompany=async (req, res) => {
       linkedInProfile
       // The userType defaults to "company" per your schema.
     });
-    res.json(userDoc);
-    return res.status(200).send('Registration successful.');
+    return res.status(200).json({
+      success: true,
+      message: 'Registration successful',
+      user: userDoc
+    });
   } catch (e) {
     console.error("Error in registering user:", e);
   }

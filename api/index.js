@@ -56,7 +56,7 @@ mongoose.connect(mongoUrl)
 // Routes
 app.use('/auth', AuthenticationRoutes);
 app.use('/seeker', seekerRoutes);
-app.use('/company', CompanyRoutes);
+app.use('', CompanyRoutes);
 app.use('/company/jobs', JobRoutes);
 
 app.use(session({

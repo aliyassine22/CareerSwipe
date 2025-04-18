@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 // Custom Components
-import Input from '../Components/Input';
-import SubmitButton from '../Components/SubmitButton';
+import Input from '../Components/AuthComponents/Input';
+import SubmitButton from '../Components/AuthComponents/SubmitButton';
 
 export default function RegisterCompany() {
   const navigate = useNavigate();

@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import multer from "multer";
 import AuthenticationRoutes from "./Router/userRoutes/AuthenticationRoutes.js";
+import seekerRoutes from "./Router/userRoutes/seekerRoutes.js";
 
 // Ensure the file exists and exports a valid router object
 import bodyParser from "body-parser";
@@ -50,6 +51,7 @@ mongoose.connect(process.env.MongoUrl)
 
 // Routes
 app.use('/auth', AuthenticationRoutes);
+app.use('/seeker', seekerRoutes);
 
 app.use(session({
   secret: 'AliYassine', // Use a secure secret in production

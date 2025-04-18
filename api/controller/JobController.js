@@ -65,7 +65,47 @@ const getCompanyJobPostings = async (req, res) => {
   }
 };
 
+const closeJobPosting = async (req, res) => {
+  try {
+    const jobId = req.params.jobId;
+    const companyId = req.user.userId;
+
+    const jobPosting = await JobPosting.findOne({ _id: jobId, companyId });
+
+    if (!jobPosting) {
+      return res.status(404).json({
+        success: false,
+        message: 'Job posting not found or you do not have permission to close it'
+      });
+    }
+
+    if (jobPosting.status === 'closed') {
+      return res.status(400).json({
+        success: false,
+        message: 'Job posting is already closed'
+      });
+    }
+
+    jobPosting.status = 'closed';
+    await jobPosting.save();
+
+    res.json({
+      success: true,
+      message: 'Job posting closed successfully',
+      jobPosting
+    });
+  } catch (error) {
+    console.error('Error closing job posting:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error closing job posting',
+      error: error.message
+    });
+  }
+};
+
 export default {
   createJobPosting,
-  getCompanyJobPostings
+  getCompanyJobPostings,
+  closeJobPosting
 };

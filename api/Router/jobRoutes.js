@@ -13,4 +13,7 @@ router.post('/', JobController.createJobPosting);
 // Get all job postings for a company
 router.get('/company', JobController.getCompanyJobPostings);
 
+// Close a job posting
+router.put('/:jobId/close', JobController.closeJobPosting);
+
 export default router;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import CompanyDetails from './CompanyDetails';
 import CreateJobPosting from './CreateJobPosting';
+import ManageJobPostings from './ManageJobPostings';
 
 export default function CompanyPage() {
   const [activeTab, setActiveTab] = useState('details');
@@ -8,7 +9,7 @@ export default function CompanyPage() {
   const tabs = [
     { id: 'details', label: 'Company Details' },
     { id: 'createJob', label: 'Create Job Posting' },
-    // Other tabs will be added later
+    { id: 'manageJobs', label: 'Manage Job Postings' },
   ];
 
   return (
@@ -38,6 +39,7 @@ export default function CompanyPage() {
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {activeTab === 'details' && <CompanyDetails />}
         {activeTab === 'createJob' && <CreateJobPosting />}
+        {activeTab === 'manageJobs' && <ManageJobPostings />}
       </div>
     </div>
   );

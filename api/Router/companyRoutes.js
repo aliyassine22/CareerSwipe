@@ -1,5 +1,5 @@
 import express from 'express';
-import { getCompanyProfile, updateCompanyProfile } from '../controller/CompanyController.js';
+import { getCompanyProfile, updateCompanyProfile, getJobDetails} from '../controller/CompanyController.js';
 import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -12,5 +12,8 @@ router.get('/profile/:id', getCompanyProfile);
 
 // Update company profile
 router.put('/profile', auth, updateCompanyProfile);
+
+// Get job details by ID
+router.get('/job/:id', getJobDetails)
 
 export default router;

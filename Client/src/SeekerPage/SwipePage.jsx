@@ -17,7 +17,8 @@ const SwipePage = () => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:4000/company/jobs');
+        const userId = localStorage.getItem('userId');
+        const response = await axios.get(`http://localhost:4000/seeker/unswiped-jobs/${userId}`);
         setJobs(response.data);
         setLoading(false);
       } catch (err) {
@@ -51,9 +52,10 @@ const SwipePage = () => {
     }
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e) => {
     if (!cardRef.current) return;
-    const diff = cardRef.current.getBoundingClientRect().x - startX;
+    const currentX = e.changedTouches[0].clientX;
+    const diff = currentX - startX;
 
     if (diff > 100) {
       handleLike();
@@ -118,14 +120,13 @@ const SwipePage = () => {
   };
 
   // Handle like/pass & saving interaction
-  const saveInteraction = async (jobId, interactionType) => {
+  const saveInteraction = async (jobId, action) => {
     try {
       await axios.post(
         'http://localhost:4000/seeker/interactions',
-        { jobId, interactionType },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-      );
-    } catch (err) {
+        { userId: localStorage.getItem('userId'), jobId, action },
+        { withCredentials: true } // Send credentials with request
+      )} catch (err) {
       console.error('Error saving interaction:', err);
     }
   };
@@ -139,12 +140,12 @@ const SwipePage = () => {
     }
   };
 
-  const handleLike = () => {
+  const handlePass = () => {
     if (!cardRef.current) return;
     cardRef.current.style.transition = 'transform 0.5s ease';
-    cardRef.current.style.transform = 'translateX(1000px) rotate(45deg)';
+    cardRef.current.style.transform = 'translateX(-1000px) rotate(-45deg)';
     const jobId = jobs[currentIndex]._id;
-    saveInteraction(jobId, 'like');
+    saveInteraction(jobId, 'pass');
 
     setTimeout(() => {
       if (cardRef.current) {
@@ -155,12 +156,12 @@ const SwipePage = () => {
     }, 500);
   };
 
-  const handlePass = () => {
+  const handleLike = () => {
     if (!cardRef.current) return;
     cardRef.current.style.transition = 'transform 0.5s ease';
-    cardRef.current.style.transform = 'translateX(-1000px) rotate(-45deg)';
-    const jobId = jobs[currentIndex]._1d;
-    saveInteraction(jobId, 'pass');
+    cardRef.current.style.transform = 'translateX(1000px) rotate(45deg)';
+    const jobId = jobs[currentIndex]._id;
+    saveInteraction(jobId, 'like');
 
     setTimeout(() => {
       if (cardRef.current) {

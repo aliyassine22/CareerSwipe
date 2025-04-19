@@ -1,4 +1,6 @@
+import mongoose from 'mongoose';
 import Company from '../models/Company.js';
+import JobPosting from '../models/JobPosting.js';
 import bcrypt from 'bcryptjs';
 
 export const updateCompanyProfile = async (req, res) => {
@@ -90,3 +92,20 @@ export const getCompanyProfile = async (req, res) => {
 };
 
 // Export functions directly using named exports above
+export const getJobDetails = async (req, res) => {
+  try {
+    const job = await JobPosting.findById(req.params.id)
+      .populate('companyId', 'name logo')
+      .populate({
+        path: 'applications.userId',
+        select: 'firstName lastName email'
+      });
+    if (!job) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+    res.json(job);
+  } catch (err) {
+    console.error('Error getting job:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+}

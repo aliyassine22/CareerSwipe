@@ -50,9 +50,25 @@ const jobPostingSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: ['active', 'closed', 'draft'],
-    default: 'active'
+    enum: ['Active', 'Filled', 'Closed'],
+    default: 'Active'
   },
+  applications: [{
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'JobSeeker',
+      required: true
+    },
+    applicationDate: {
+      type: Date,
+      default: Date.now
+    },
+    status: {
+      type: String,
+      enum: ['Pending', 'Reviewed', 'Rejected', 'Accepted'],
+      default: 'Pending'
+    }
+  }],
   createdAt: {
     type: Date,
     default: Date.now

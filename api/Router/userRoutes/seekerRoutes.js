@@ -1,6 +1,6 @@
 import express from 'express';
 import JobSeekerController from '../../controller/JobSeekerController.js';
-import { saveInteraction, getUserInteractions, getLikedJobs } from '../../controller/InteractionController.js';
+import { saveInteraction, getUserInteractions, getLikedJobs, getUserHistory, getUnswipedJobs } from '../../controller/InteractionController.js';
 
 const router = express.Router();
 
@@ -17,5 +17,7 @@ router.get('/cv/:id', JobSeekerController.downloadCV);
 router.post('/interactions', saveInteraction);
 router.get('/interactions/:userId', getUserInteractions);
 router.get('/liked-jobs/:userId', getLikedJobs);
+router.get('/history/:userId', getUserHistory);
+router.get('/unswiped-jobs/:userId', getUnswipedJobs);
 
 export default router;

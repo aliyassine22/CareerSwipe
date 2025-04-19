@@ -177,4 +177,19 @@ const login = async (req, res) => {
   }
 };
 
-export default { registerCompany, registerJobSeeker, registerJobSeekerMiddleware, login };
+const logout = (req, res) => {
+  // Clear the token cookie
+  res.clearCookie('token');
+  
+  // Clear any session data if you're using sessions
+  if (req.session) {
+    req.session.destroy();
+  }
+  
+  res.json({
+    success: true,
+    message: 'Successfully logged out'
+  });
+};
+
+export default { registerCompany, registerJobSeeker, registerJobSeekerMiddleware, login, logout };

@@ -31,7 +31,7 @@ const Interaction = mongoose.model('Interaction', interactionSchema);
 export const saveInteraction = async (req, res) => {
   try {
     const { userId, jobId, action } = req.body;
-    
+    console.log(userId,jobId,action)
     // Validate inputs
     if (!userId || !jobId || !action) {
       return res.status(400).json({ message: 'Missing required fields' });
@@ -58,7 +58,7 @@ export const saveInteraction = async (req, res) => {
         jobId,
         action
       });
-      
+      console.log('ahhhhhhhhhhhhhhhhhhh')
       await newInteraction.save();
       return res.status(201).json({ message: 'Interaction saved', interaction: newInteraction });
     }
@@ -103,4 +103,49 @@ export const getLikedJobs = async (req, res) => {
   }
 };
 
-export default { saveInteraction, getUserInteractions, getLikedJobs };
+export const getUserHistory = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Get all interactions for this user
+    const interactions = await Interaction.find({ userId })
+      .populate('jobId', 'title company description salary')
+      .sort({ createdAt: -1 });
+
+    // Organize interactions by action
+    const history = {
+      likes: interactions.filter(interaction => interaction.action === 'like'),
+      passes: interactions.filter(interaction => interaction.action === 'pass')
+    };
+
+    res.json(history);
+  } catch (err) {
+    console.error('Error getting user history:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getUnswipedJobs = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Get all job IDs that the user has already interacted with
+    const interactedJobs = await Interaction.find({ userId })
+      .distinct('jobId');
+
+    // Get all active jobs that the user hasn't interacted with
+    const jobs = await JobPosting.find({
+      _id: { $nin: interactedJobs },
+      status: 'Active'
+    })
+    .sort({ createdAt: -1 })
+    .limit(10); // Limit to 10 jobs at a time
+
+    res.json(jobs);
+  } catch (err) {
+    console.error('Error getting unswiped jobs:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export default { saveInteraction, getUserInteractions, getLikedJobs, getUserHistory, getUnswipedJobs };

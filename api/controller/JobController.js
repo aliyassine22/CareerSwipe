@@ -24,7 +24,7 @@ export const createJobPosting = async (req, res) => {
       location,
       salary,
       employmentType,
-      status: 'active',
+      status: 'Active',
       createdAt: new Date()
     });
 

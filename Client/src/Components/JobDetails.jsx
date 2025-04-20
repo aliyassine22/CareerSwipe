@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMapMarkerAlt, faBriefcase, faGraduationCap, faDollarSign } from '@fortawesome/free-solid-svg-icons';
+import Map from './Map/Map';
 
 const JobDetails = () => {
   const { id } = useParams();
@@ -75,7 +76,15 @@ const JobDetails = () => {
             <span className="text-gray-600">{job.location}</span>
           </div>
         </div>
-
+        {job.location && (
+          <div className="mb-8 h-64 border rounded-lg overflow-hidden">
+            <Map
+              center={job.location.split(',').map(Number)}
+              markers={[job.location.split(',').map(Number)]}
+              zoom={13}
+            />
+          </div>
+        )}
         {/* Job Details */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="space-y-6">

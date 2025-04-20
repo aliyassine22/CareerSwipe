@@ -83,26 +83,26 @@ export const adminLogin = async (req, res) => {
       throw new Error('JWT secret is not configured');
     }
 
-      const token = jwt.sign(
-          { adminId: admin._id },
-          jwtSecret,
-          { expiresIn: '24h' }
-        );
-    
-        // Send response
-        return res.status(200).json({
-          success: true,
-          message: 'Login successful',
-          token,
-          admin: {
-            id: admin._id,
-            email: admin.email,
-            firstName: admin.firstName,
-            lastName: admin.lastName,
-            role: admin.role,
-            status: admin.status
-          }
-        });
+       const token = jwt.sign(
+            { adminId: admin._id },
+           jwtSecret,
+            { expiresIn: '24h' }
+         );
+      
+          // Send response
+          return res.status(200).json({
+            success: true,
+            message: 'Login successful',
+            token,
+            admin: {
+              id: admin._id,
+              email: admin.email,
+              firstName: admin.firstName,
+              lastName: admin.lastName,
+              role: admin.role,
+              status: admin.status
+            }
+          });
   } catch (error) {
     console.error('Admin login error:', error);
     const errorMessage = error.message || 'An error occurred during login';

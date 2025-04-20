@@ -6,7 +6,8 @@ import {
   updateJobPosting, 
   deleteJobPosting,
   getCompanyJobPostings,
-  closeJobPosting
+  closeJobPosting,
+  getTotalJobs
 } from '../controller/JobController.js';
 import { auth } from '../middleware/auth.js';
 
@@ -28,6 +29,7 @@ router.put('/:jobId/close', auth, closeJobPosting);
 router.put('/:id', auth, updateJobPosting);
 
 // Get job posting by ID - GENERIC PARAMETER ROUTES LAST
+router.get('/total-jobs', getTotalJobs);
 router.get('/:id', getJobPostingById);
 
 // Delete job posting (requires authentication)

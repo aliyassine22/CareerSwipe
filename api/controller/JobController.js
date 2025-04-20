@@ -104,6 +104,51 @@ export const closeJobPosting = async (req, res) => {
   }
 };
 
+export const getTotalJobs = async (req, res) => {
+  try {
+    // Get total number of jobs
+    const totalJobs = await JobPosting.countDocuments();
+
+    // Get job statistics
+    const activeJobs = await JobPosting.countDocuments({ status: 'active' });
+    const closedJobs = await JobPosting.countDocuments({ status: 'closed' });
+
+    // Get job distribution by employment type
+    const employmentTypeStats = await JobPosting.aggregate([
+      { $group: { 
+        _id: "$employmentType",
+        count: { $sum: 1 }
+      } }
+    ]);
+
+    // Get job distribution by experience level
+    const experienceLevelStats = await JobPosting.aggregate([
+      { $group: { 
+        _id: "$experienceLevel",
+        count: { $sum: 1 }
+      } }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalJobs,
+        activeJobs,
+        closedJobs,
+        employmentTypeStats,
+        experienceLevelStats
+      }
+    });
+  } catch (error) {
+    console.error('Error getting total jobs:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error getting job statistics',
+      error: error.message
+    });
+  }
+};
+
 export const getAllJobPostings = async (req, res) => {
   try {
     const jobPostings = await JobPosting.find({ status: 'active' })

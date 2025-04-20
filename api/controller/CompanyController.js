@@ -65,6 +65,82 @@ export const updateCompanyProfile = async (req, res) => {
   }
 };
 
+export const getCompanyStatistics = async (req, res) => {
+  try {
+    // Get total number of companies
+    const totalCompanies = await Company.countDocuments();
+
+    // Get companies by industry
+    const industryStats = await Company.aggregate([
+      { $group: { 
+        _id: "$industry",
+        count: { $sum: 1 }
+      } }
+    ]);
+
+    // Get companies by company size
+    const sizeStats = await Company.aggregate([
+      { $group: { 
+        _id: "$companySize",
+        count: { $sum: 1 }
+      } }
+    ]);
+
+    // Get companies by employment types
+    const employmentTypeStats = await Company.aggregate([
+      {
+        $group: {
+          _id: "$employmentTypes",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    // Get companies by location
+    const locationStats = await Company.aggregate([
+      { $group: { 
+        _id: "$headOfficeLocation",
+        count: { $sum: 1 }
+      } }
+    ]);
+
+    // Get average number of jobs per company
+    const avgJobsPerCompany = await JobPosting.aggregate([
+      {
+        $group: {
+          _id: "$companyId",
+          jobCount: { $sum: 1 }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          avgJobs: { $avg: "$jobCount" }
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalCompanies,
+        industryStats,
+        sizeStats,
+        employmentTypeStats,
+        locationStats,
+        avgJobsPerCompany: avgJobsPerCompany[0]?.avgJobs || 0
+      }
+    });
+  } catch (error) {
+    console.error('Error getting company statistics:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error getting company statistics',
+      error: error.message
+    });
+  }
+};
+
 export const getCompanyProfile = async (req, res) => {
   try {
     const companyId = req.user.userId;

@@ -80,7 +80,80 @@ export const getUserInteractions = async (req, res) => {
     return res.status(200).json(interactions);
   } catch (error) {
     console.error('Error getting user interactions:', error);
-    return res.status(500).json({ message: 'Server error', error: error.message });
+    return res.status(500).json({ message: 'Server error', error: error.message });  }
+};
+
+export const getTotalUsers = async (req, res) => {
+  try {
+    // Get total number of users
+    const totalUsers = await mongoose.connection.db.collection('jobseekers').countDocuments();
+
+    // Get users by education level
+    const educationStats = await mongoose.connection.db.collection('jobseekers').aggregate([
+      { $group: { 
+        _id: "$educationLevel",
+        count: { $sum: 1 }
+      } }
+    ]).toArray();
+
+    // Get users by experience level
+    const experienceStats = await mongoose.connection.db.collection('jobseekers').aggregate([
+      { $group: { 
+        _id: "$experienceLevel",
+        count: { $sum: 1 }
+      } }
+    ]).toArray();
+
+    // Get users by preferred location
+    const locationStats = await mongoose.connection.db.collection('jobseekers').aggregate([
+      { $group: { 
+        _id: "$preferredLocation",
+        count: { $sum: 1 }
+      } }
+    ]).toArray();
+
+    // Get users by job preferences
+    const jobPreferenceStats = await mongoose.connection.db.collection('jobseekers').aggregate([
+      { $group: { 
+        _id: "$jobPreferences",
+        count: { $sum: 1 }
+      } }
+    ]).toArray();
+
+    // Get average number of interactions per user
+    const avgInteractionsPerUser = await Interaction.aggregate([
+      {
+        $group: {
+          _id: "$userId",
+          interactionCount: { $sum: 1 }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          avgInteractions: { $avg: "$interactionCount" }
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalUsers,
+        educationStats,
+        experienceStats,
+        locationStats,
+        jobPreferenceStats,
+        avgInteractionsPerUser: avgInteractionsPerUser[0]?.avgInteractions || 0
+      }
+    });
+  } catch (error) {
+    console.error('Error getting total users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error getting user statistics',
+      error: error.message
+    });
   }
 };
 

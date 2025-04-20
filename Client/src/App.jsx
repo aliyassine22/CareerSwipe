@@ -24,6 +24,7 @@ import HistoryPage from "./SeekerPage/HistoryPage";
 import JobDetails from "./Components/JobDetails";
 import AdminLogin from "./AdminPage/AdminLogin";
 import AdminDashboard from "./AdminPage/AdminDashboard";
+import AdminInitializer from "./AdminPage/AdminInitializer";
 
 // Company Pages
 import CompanyPage from "./CompanyPage/CompanyPage";
@@ -72,25 +73,27 @@ function App() {
 
         {/* Admin Routes */}
         <Route path="/admin">
+          <Route path="initialize" element={<AdminInitializer />} />
           <Route path="login" element={<AdminLogin />} />
           <Route path="dashboard" element={<AdminDashboard />} />
         </Route>
 
         {/* Company Routes with Layout */}
         <Route path="/company" element={<CompanyLayout />}>
-          <Route path="profile" element={<CompanyProfile />} />
-          <Route path="jobs" element={<CompanyJobs />} />
-          <Route path="job/:id" element={<JobDetails />} />
+          <Route index element={<CompanyDetails />} />
+          <Route path="profile" element={<CompanyDetails />} />
+          <Route path="create-job" element={<CreateJobPosting />} />
+          <Route path="manage-jobs" element={<ManageJobPostings />} />
         </Route>
 
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        {/* <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} /> */}
 
         {/* 404 Route */}
-        <Route path="*" element={<NotFound />} />
+        {/* <Route path="*" element={<NotFound />} /> */}
         <Route path="/CompanyPage" element={<CompanyPage />} />
       </Routes>
     </>

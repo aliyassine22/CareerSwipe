@@ -11,6 +11,7 @@ import AuthenticationRoutes from "./Router/userRoutes/AuthenticationRoutes.js";
 import seekerRoutes from "./Router/userRoutes/seekerRoutes.js";
 import CompanyRoutes from "./Router/companyRoutes.js";
 import JobRoutes from "./Router/jobRoutes.js";
+import adminRoutes from "./Router/adminRoutes.js"; // Import admin routes
 
 // Ensure the file exists and exports a valid router object
 import bodyParser from "body-parser";
@@ -24,12 +25,14 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const app = express();
 
-// Load environment variables from .env file
-dotenv.config();
-
 // For ES module compatibility
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Load environment variables from .env file
+dotenv.config({
+  path: path.join(__dirname, '.env')
+});
 
 
 // Middleware   --> to fix payloads limits
@@ -48,16 +51,52 @@ app.use(
 // MongoDB connection string
 const mongoUrl = "mongodb+srv://ali123:ali321987@ac-qhiyeui.2v6kk0m.mongodb.net/?retryWrites=true&w=majority";
 
-mongoose.connect(mongoUrl)
-  .then(() => console.log("MongoDB connected successfully"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(mongoUrl, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      family: 4,
+      autoIndex: true, // Enable automatic index creation
+      retryWrites: true, // Enable retryable writes
+      w: 'majority' // Write concern
+    });
 
+    console.log(`MongoDB connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    setTimeout(connectDB, 5000); // Retry connection after 5 seconds
+  }
+};
+
+// Initial connection
+connectDB();
+
+// Monitor connection events
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB connected successfully');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+  // Attempt to reconnect
+  setTimeout(connectDB, 5000);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+  // Attempt to reconnect
+  setTimeout(connectDB, 5000);
+});
 
 // Routes
 app.use('/auth', AuthenticationRoutes);
 app.use('/seeker', seekerRoutes);
 app.use('/company', CompanyRoutes);
 app.use('/company/jobs', JobRoutes);
+app.use('/admin', adminRoutes);
 
 app.use(session({
   secret: 'AliYassine', // Use a secure secret in production

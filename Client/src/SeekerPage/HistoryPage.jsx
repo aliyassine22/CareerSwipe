@@ -3,11 +3,13 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbsUp, faThumbsDown, faClock } from '@fortawesome/free-solid-svg-icons';
+import Map from '../Components/Map/Map';
 
 const HistoryPage = () => {
   const [history, setHistory] = useState({ likes: [], passes: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [mapVisible, setMapVisible] = useState({});
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -129,11 +131,34 @@ const HistoryPage = () => {
                 <p className="mt-2 text-gray-700">
                   {interaction.jobId.description.substring(0, 150)}...
                 </p>
-                <div className="mt-4 flex justify-between items-center">
+                <div className="mt-4 flex items-center space-x-4">
                   <span className="text-gray-500 text-sm">
                     {new Date(interaction.createdAt).toLocaleDateString()}
                   </span>
+                  {interaction.jobId.location && (
+                    <button
+                      type="button"
+                      className="text-indigo-600"
+                      onClick={() =>
+                        setMapVisible(prev => ({
+                          ...prev,
+                          [interaction.jobId._id]: !prev[interaction.jobId._id]
+                        }))
+                      }
+                    >
+                      {mapVisible[interaction.jobId._id] ? 'Hide Location' : 'View Location'}
+                    </button>
+                  )}
                 </div>
+                {interaction.jobId.location && mapVisible[interaction.jobId._id] && (
+                  <div className="mt-4 border rounded-lg overflow-hidden h-64">
+                    <Map
+                      center={interaction.jobId.location.split(',').map(Number)}
+                      markers={[interaction.jobId.location.split(',').map(Number)]}
+                      zoom={13}
+                    />
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -104,7 +104,7 @@ export default function HomePage() {
       </div>
 
       {/* Navigation links */}
-      <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+      {/* <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
         <div className="flex justify-center space-x-8">
           <Link to="/about" className="text-base font-semibold text-indigo-600 hover:text-indigo-500">
             About Us
@@ -119,7 +119,7 @@ export default function HomePage() {
             Login
           </Link>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -89,9 +89,8 @@ export default function AboutPage() {
           </dl>
         </div>
       </div>
-
       {/* Navigation links */}
-      <div className="mx-auto mt-16 max-w-7xl px-6 sm:mt-20 md:mt-24 lg:px-8 pb-24">
+      {/* <div className="mx-auto mt-16 max-w-7xl px-6 sm:mt-20 md:mt-24 lg:px-8 pb-24">
         <div className="flex justify-center space-x-6">
           <Link to="/" className="text-base font-semibold text-indigo-600 hover:text-indigo-500">
             Home
@@ -100,7 +99,7 @@ export default function AboutPage() {
             Who We Are
           </Link>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

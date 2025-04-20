@@ -61,7 +61,7 @@ export default function SeekerSideNav() {
               Swipe Jobs
             </NavLink>
           </li>
-          <li>
+          {/* <li>
             <NavLink
               to="/seeker/saved-jobs"
               className={({ isActive }) =>
@@ -73,7 +73,7 @@ export default function SeekerSideNav() {
               <FontAwesomeIcon icon={faBookmark} className="mr-2" />
               Saved Jobs
             </NavLink>
-          </li>
+          </li> */}
           <li>
             <NavLink
               to="/seeker/history"

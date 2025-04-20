@@ -9,8 +9,8 @@ import dotenv from "dotenv";
 import multer from "multer";
 import AuthenticationRoutes from "./Router/userRoutes/AuthenticationRoutes.js";
 import seekerRoutes from "./Router/userRoutes/seekerRoutes.js";
-import CompanyRoutes from "./Router/companyRoutes.js";
-import JobRoutes from "./Router/jobRoutes.js";
+import CompanyRoutes from "./Router/userRoutes/companyRoutes.js";
+import JobRoutes from "./Router/userRoutes/jobRoutes.js";
 
 // Ensure the file exists and exports a valid router object
 import bodyParser from "body-parser";

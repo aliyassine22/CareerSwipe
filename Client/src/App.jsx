@@ -63,7 +63,7 @@ function App() {
         <Route path="/seeker" element={<SeekerLayout />}>
           <Route path="profile" element={<SeekerProfile />} />
           <Route path="swipe" element={<SwipePage />} />
-          <Route path="saved-jobs" element={<div>Saved Jobs</div>} />
+          {/* <Route path="saved-jobs" element={<div>Saved Jobs</div>} /> */}
           <Route path="history" element={<HistoryPage />} />
         </Route>
         <Route path="/job/:id" element={<JobDetails />} />

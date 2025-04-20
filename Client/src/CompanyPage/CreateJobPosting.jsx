@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import Map from '../Components/Map/Map';
 
 export default function CreateJobPosting() {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ export default function CreateJobPosting() {
     },
     employmentType: 'Full Time',
   });
+  const [showMap, setShowMap] = useState(false);
 
   const experienceLevels = ['Entry Level', 'Mid Level', 'Senior Level', 'Executive'];
   const employmentTypes = ['Full Time', 'Part Time', 'Contract', 'Internship'];
@@ -44,7 +46,11 @@ export default function CreateJobPosting() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    // Validate salary range
+    if (formData.salary.min !== '' && formData.salary.max !== '' && Number(formData.salary.max) <= Number(formData.salary.min)) {
+      toast.error('Maximum salary must be greater than minimum salary');
+      return;
+    }
     try {
       const response = await fetch('http://localhost:4000/company/jobs', {
         method: 'POST',
@@ -118,10 +124,32 @@ export default function CreateJobPosting() {
                 value={formData.location}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                placeholder="Click on map to set location"
+                readOnly
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 bg-gray-50"
               />
             </div>
-
+            <div className="col-span-2">
+              <button
+                type="button"
+                onClick={() => setShowMap(prev => !prev)}
+                className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                {showMap ? 'Hide Map' : 'Pick location on map'}
+              </button>
+            </div>
+            {showMap && (
+              <div className="col-span-2 border rounded-lg overflow-hidden">
+                <Map
+                  markers={
+                    formData.location
+                      ? [[parseFloat(formData.location.split(',')[0]), parseFloat(formData.location.split(',')[1])]]
+                      : []
+                  }
+                  onMapClick={(coords) => setFormData(prev => ({ ...prev, location: `${coords.lat},${coords.lng}` }))}
+                />
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-gray-700">Experience Level</label>
               <select
@@ -172,6 +200,9 @@ export default function CreateJobPosting() {
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               />
+              {formData.salary.min !== '' && formData.salary.max !== '' && Number(formData.salary.max) <= Number(formData.salary.min) && (
+                <p className="col-span-2 text-red-500 text-xs mt-1">Maximum salary must be greater than minimum salary</p>
+              )}
             </div>
 
             <div className="col-span-2">
@@ -215,7 +246,8 @@ export default function CreateJobPosting() {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              disabled={formData.salary.min !== '' && formData.salary.max !== '' && Number(formData.salary.max) <= Number(formData.salary.min)}
+              className="px-6 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Create Job Posting
             </button>

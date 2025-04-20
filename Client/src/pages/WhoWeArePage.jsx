@@ -103,14 +103,14 @@ export default function WhoWeArePage() {
         </div>
 
         {/* Navigation links */}
-        <div className="mx-auto mt-16 max-w-2xl flex justify-center space-x-6">
+        {/* <div className="mx-auto mt-16 max-w-2xl flex justify-center space-x-6">
           <Link to="/" className="text-base font-semibold text-indigo-600 hover:text-indigo-500">
             Home
           </Link>
           <Link to="/about" className="text-base font-semibold text-indigo-600 hover:text-indigo-500">
             About Us
           </Link>
-        </div>
+        </div> */}
       </div>
     </div>
   );

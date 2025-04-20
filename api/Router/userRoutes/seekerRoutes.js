@@ -10,7 +10,7 @@ router.put('/profile/:id', JobSeekerController.updateProfile);
 
 // CV routes
 router.post('/cv/:id', JobSeekerController.uploadCV);
-router.delete('/cv/:id', JobSeekerController.removeCV);
+router.delete('/cv/:id', JobSeekerController.removeCV);+
 router.get('/cv/:id', JobSeekerController.downloadCV);
 
 // Job interaction routes

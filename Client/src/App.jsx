@@ -22,6 +22,8 @@ import SeekerProfile from "./SeekerPage/SeekerProfile";
 import SwipePage from "./SeekerPage/SwipePage";
 import HistoryPage from "./SeekerPage/HistoryPage";
 import JobDetails from "./Components/JobDetails";
+import AdminLogin from "./AdminPage/AdminLogin";
+import AdminDashboard from "./AdminPage/AdminDashboard";
 
 // Company Pages
 import CompanyPage from "./CompanyPage/CompanyPage";
@@ -68,15 +70,27 @@ function App() {
         </Route>
         <Route path="/job/:id" element={<JobDetails />} />
 
-        {/* Company Routes with Layout */}
-        <Route path="/company" element={<CompanyLayout />}>
-          <Route index element={<CompanyDetails />} />
-          <Route path="profile" element={<CompanyDetails />} />
-          <Route path="create-job" element={<CreateJobPosting />} />
-          <Route path="manage-jobs" element={<ManageJobPostings />} />
+        {/* Admin Routes */}
+        <Route path="/admin">
+          <Route path="login" element={<AdminLogin />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
         </Route>
 
-        {/* Legacy route - redirect or keep for compatibility */}
+        {/* Company Routes with Layout */}
+        <Route path="/company" element={<CompanyLayout />}>
+          <Route path="profile" element={<CompanyProfile />} />
+          <Route path="jobs" element={<CompanyJobs />} />
+          <Route path="job/:id" element={<JobDetails />} />
+        </Route>
+
+        {/* Public Routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+        {/* 404 Route */}
+        <Route path="*" element={<NotFound />} />
         <Route path="/CompanyPage" element={<CompanyPage />} />
       </Routes>
     </>

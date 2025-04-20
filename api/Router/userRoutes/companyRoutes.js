@@ -9,3 +9,5 @@ router.get('/profile', authenticateToken, CompanyController.getCompanyProfile);
 router.put('/profile', authenticateToken, CompanyController.updateCompanyProfile);
 
 export default router;
+
+/* DELETE THISSSS */

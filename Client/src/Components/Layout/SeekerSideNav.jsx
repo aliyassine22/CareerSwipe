@@ -6,6 +6,7 @@ import {
   faSyncAlt, 
   faBookmark, 
   faHistory, 
+  faCommentDots, 
   faSignOutAlt 
 } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
@@ -85,6 +86,19 @@ export default function SeekerSideNav() {
             >
               <FontAwesomeIcon icon={faHistory} className="mr-2" />
               Application History
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/seeker/messages"
+              className={({ isActive }) =>
+                `flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive ? 'bg-blue-100 text-blue-600' : 'text-gray-700 hover:bg-gray-200'
+                }`
+              }
+            >
+              <FontAwesomeIcon icon={faCommentDots} className="mr-2" />
+              Messages
             </NavLink>
           </li>
         </ul>

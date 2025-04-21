@@ -17,7 +17,11 @@ const HistoryPage = () => {
         setLoading(true);
         const userId = localStorage.getItem('userId');
         const response = await axios.get(`http://localhost:4000/seeker/history/${userId}`);
-        setHistory(response.data);
+        // Exclude closed jobs from history
+        const { likes, passes } = response.data;
+        const filteredLikes = likes.filter(i => i.jobId.status?.toLowerCase() !== 'closed');
+        const filteredPasses = passes.filter(i => i.jobId.status?.toLowerCase() !== 'closed');
+        setHistory({ likes: filteredLikes, passes: filteredPasses });
         setLoading(false);
       } catch (err) {
         console.error('Error fetching history:', err);

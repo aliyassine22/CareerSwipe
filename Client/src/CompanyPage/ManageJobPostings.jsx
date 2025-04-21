@@ -4,6 +4,9 @@ import { toast } from 'react-hot-toast';
 export default function ManageJobPostings() {
   const [jobPostings, setJobPostings] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [editingJobId, setEditingJobId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
 
   useEffect(() => {
     fetchJobPostings();
@@ -47,7 +50,7 @@ export default function ManageJobPostings() {
         setJobPostings(prevPostings =>
           prevPostings.map(posting =>
             posting._id === jobId
-              ? { ...posting, status: 'closed' }
+              ? { ...posting, status: 'Closed' }
               : posting
           )
         );
@@ -55,6 +58,35 @@ export default function ManageJobPostings() {
     } catch (error) {
       console.error('Error closing job posting:', error);
       toast.error('Failed to close job posting');
+    }
+  };
+
+  const startEdit = (job) => {
+    setSelectedJob(job);
+    setEditingJobId(job._id);
+    setEditTitle(job.title);
+    setEditDescription(job.description);
+  };
+
+  const saveEdit = async () => {
+    try {
+      const response = await fetch(`http://localhost:4000/company/jobs/${editingJobId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editTitle, description: editDescription })
+      });
+      const data = await response.json();
+      if (data.success) {
+        toast.success('Job updated successfully');
+        setJobPostings(prev => prev.map(p => p._id === editingJobId ? { ...p, title: editTitle, description: editDescription } : p));
+        setEditingJobId(null);
+      } else {
+        toast.error(data.message || 'Failed to update job');
+      }
+    } catch (error) {
+      console.error('Error updating job:', error);
+      toast.error('Failed to update job');
     }
   };
 
@@ -88,8 +120,8 @@ export default function ManageJobPostings() {
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium text-gray-900">{job.title}</h3>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      job.status === 'active' ? 'bg-green-100 text-green-800' :
-                      job.status === 'closed' ? 'bg-red-100 text-red-800' :
+                      job.status.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' :
+                      job.status.toLowerCase() === 'closed' ? 'bg-red-100 text-red-800' :
                       'bg-gray-100 text-gray-800'
                     }`}>
                       {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
@@ -111,13 +143,17 @@ export default function ManageJobPostings() {
                     >
                       {selectedJob?._id === job._id ? 'Hide Details' : 'View Details'}
                     </button>
-                    {job.status === 'active' && (
-                      <button
-                        onClick={() => closeJobPosting(job._id)}
-                        className="ml-4 text-red-600 hover:text-red-900 text-sm font-medium"
-                      >
-                        Close Posting
-                      </button>
+                    {job.status.toLowerCase() === 'active' && editingJobId !== job._id && (
+                      <>
+                        <button
+                          onClick={() => closeJobPosting(job._id)}
+                          className="ml-4 text-red-600 hover:text-red-900 text-sm font-medium"
+                        >Close Posting</button>
+                        <button
+                          onClick={() => startEdit(job)}
+                          className="ml-4 text-blue-600 hover:text-blue-900 text-sm font-medium"
+                        >Edit Details</button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -126,23 +162,58 @@ export default function ManageJobPostings() {
               {/* Expanded details */}
               {selectedJob?._id === job._id && (
                 <div className="mt-4 bg-gray-50 p-4 rounded-md">
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Job Description</h4>
-                  <p className="text-sm text-gray-600 whitespace-pre-line">{job.description}</p>
-                  
-                  <h4 className="text-sm font-medium text-gray-900 mt-4 mb-2">Required Skills</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {job.requiredSkills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
+                  {editingJobId === job._id ? (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Title</label>
+                        <input
+                          type="text"
+                          value={editTitle}
+                          onChange={e => setEditTitle(e.target.value)}
+                          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea
+                          value={editDescription}
+                          onChange={e => setEditDescription(e.target.value)}
+                          className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                          rows={4}
+                        />
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={saveEdit}
+                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >Save</button>
+                        <button
+                          onClick={() => setEditingJobId(null)}
+                          className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                        >Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <h4 className="text-sm font-medium text-gray-900 mb-2">Job Description</h4>
+                      <p className="text-sm text-gray-600 whitespace-pre-line">{job.description}</p>
+                      
+                      <h4 className="text-sm font-medium text-gray-900 mt-4 mb-2">Required Skills</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {job.requiredSkills.map((skill, index) => (
+                          <span
+                            key={index}
+                            className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
 
-                  <h4 className="text-sm font-medium text-gray-900 mt-4 mb-2">Education Required</h4>
-                  <p className="text-sm text-gray-600">{job.educationRequired}</p>
+                      <h4 className="text-sm font-medium text-gray-900 mt-4 mb-2">Education Required</h4>
+                      <p className="text-sm text-gray-600">{job.educationRequired}</p>
+                    </>
+                  )}
                 </div>
               )}
             </div>

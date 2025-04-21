@@ -5,6 +5,7 @@ import {
   faBuilding,
   faBriefcase,
   faListAlt,
+  faUsers,
   faSignOutAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
@@ -81,6 +82,21 @@ export default function CompanySideNav() {
             >
               <FontAwesomeIcon icon={faListAlt} className="mr-2" />
               Manage Job Postings
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/company/applicants"
+              className={({ isActive }) =>
+                `flex items-center px-3 py-2 rounded-md text-sm font-medium ${
+                  isActive
+                    ? 'bg-indigo-100 text-indigo-600'
+                    : 'text-gray-700 hover:bg-gray-200'
+                }`
+              }
+            >
+              <FontAwesomeIcon icon={faUsers} className="mr-2" />
+              Applicants
             </NavLink>
           </li>
         </ul>

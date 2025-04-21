@@ -79,14 +79,14 @@ export const closeJobPosting = async (req, res) => {
       });
     }
 
-    if (jobPosting.status === 'closed') {
+    if (jobPosting.status === 'Closed') {
       return res.status(400).json({
         success: false,
         message: 'Job posting is already closed'
       });
     }
 
-    jobPosting.status = 'closed';
+    jobPosting.status = 'Closed';
     await jobPosting.save();
 
     res.json({
@@ -110,8 +110,8 @@ export const getTotalJobs = async (req, res) => {
     const totalJobs = await JobPosting.countDocuments();
 
     // Get job statistics
-    const activeJobs = await JobPosting.countDocuments({ status: 'active' });
-    const closedJobs = await JobPosting.countDocuments({ status: 'closed' });
+    const activeJobs = await JobPosting.countDocuments({ status: 'Active' });
+    const closedJobs = await JobPosting.countDocuments({ status: 'Closed' });
 
     // Get job distribution by employment type
     const employmentTypeStats = await JobPosting.aggregate([
@@ -151,7 +151,7 @@ export const getTotalJobs = async (req, res) => {
 
 export const getAllJobPostings = async (req, res) => {
   try {
-    const jobPostings = await JobPosting.find({ status: 'active' })
+    const jobPostings = await JobPosting.find({ status: 'Active' })
       .sort({ createdAt: -1 }); // Most recent first
 
     res.json(jobPostings);
@@ -185,6 +185,36 @@ export const getJobPostingById = async (req, res) => {
       message: 'Error fetching job posting',
       error: error.message
     });
+  }
+};
+
+// Apply to a job posting
+export const applyToJobPosting = async (req, res) => {
+  try {
+    const seekerId = req.user.userId;
+    const jobId = req.params.jobId;
+
+    // Atomically add application if not already applied (only for active jobs)
+    const result = await JobPosting.updateOne(
+      { _id: jobId, status: 'Active', 'applications.userId': { $ne: seekerId } },
+      { $push: { applications: { userId: seekerId, applicationDate: new Date(), status: 'Pending' } } }
+    );
+    if (result.modifiedCount === 0) {
+      const jobExists = await JobPosting.exists({ _id: jobId });
+      if (!jobExists) {
+        return res.status(404).json({ success: false, message: 'Job not found' });
+      }
+      // Prevent applying to closed or filled jobs
+      const isActive = await JobPosting.exists({ _id: jobId, status: 'Active' });
+      if (!isActive) {
+        return res.status(400).json({ success: false, message: 'Cannot apply to a closed job' });
+      }
+      return res.status(400).json({ success: false, message: 'Already applied to this job' });
+    }
+    return res.json({ success: true, message: 'Application submitted successfully' });
+  } catch (error) {
+    console.error('Error applying to job:', error);
+    res.status(500).json({ success: false, message: 'Error applying to job', error: error.message });
   }
 };
 

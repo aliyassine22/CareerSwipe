@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMapMarkerAlt, faBriefcase, faGraduationCap, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 import Map from './Map/Map';
+import { toast } from 'react-toastify';
 
 const JobDetails = () => {
   const { id } = useParams();
@@ -11,13 +12,20 @@ const JobDetails = () => {
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [hasApplied, setHasApplied] = useState(false);
 
   useEffect(() => {
     const fetchJob = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:4000/company/job/${id}`);
-        setJob(response.data);
+        // Get job posting and applications
+        const res = await axios.get(`http://localhost:4000/company/jobs/${id}`, { withCredentials: true });
+        const jobData = res.data;
+        setJob(jobData);
+        // Determine if current user already applied
+        const seekerId = localStorage.getItem('userId');
+        const applied = jobData.applications?.some(app => app.userId === seekerId);
+        setHasApplied(applied);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching job:', err);
@@ -28,6 +36,27 @@ const JobDetails = () => {
 
     fetchJob();
   }, [id]);
+
+  const handleApply = async () => {
+    try {
+      await axios.post(
+        `http://localhost:4000/seeker/apply/${id}`,
+        {},
+        { withCredentials: true }
+      );
+      toast.success('Application submitted');
+      setHasApplied(true);
+    } catch (err) {
+      console.error('Error applying to job:', err);
+      const msg = err.response?.data?.message;
+      if (msg === 'Already applied to this job') {
+        toast.success('You have already applied to this job');
+        setHasApplied(true);
+      } else {
+        toast.error(msg || 'Failed to apply');
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -134,10 +163,18 @@ const JobDetails = () => {
           </div>
         </div>
 
-        {/* Apply Button */}
-        <div className="mt-8 flex justify-end">
-          
-        </div>
+        {/* Apply Button: only when Active */}
+        {job.status === 'Active' && (
+          <div className="mt-8 flex justify-end">
+            <button
+              onClick={handleApply}
+              disabled={hasApplied}
+              className={`px-5 py-2 rounded-md text-white ${hasApplied ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+            >
+              {hasApplied ? 'Applied' : 'Apply Now'}
+            </button>
+          </div>
+        )}
 
         {/* Back Button */}
         <div className="mt-8">

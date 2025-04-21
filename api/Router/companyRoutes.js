@@ -3,8 +3,10 @@ import {
   getCompanyProfile, 
   updateCompanyProfile, 
   getJobDetails,
-  getCompanyStatistics
+  getCompanyStatistics,
+  getCompanyApplicants
 } from '../controller/CompanyController.js';
+import { getConversation, sendMessage } from '../controller/MessageController.js';
 import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -20,6 +22,14 @@ router.put('/profile', auth, updateCompanyProfile);
 
 // Get job details by ID
 router.get('/job/:id', getJobDetails)
+
+// fetch applicants list
+router.get('/applicants', auth, getCompanyApplicants);
+
+// Chat with applicants
+router.get('/messages/:applicantId', auth, getConversation);
+router.post('/messages/:applicantId', auth, sendMessage);
+
 router.get('/stats', getCompanyStatistics)
 
 export default router;

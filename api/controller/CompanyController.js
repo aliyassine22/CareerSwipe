@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import Company from '../models/Company.js';
 import JobPosting from '../models/JobPosting.js';
 import bcrypt from 'bcryptjs';
+import JobSeeker from '../models/JobSeeker.js';
 
 export const updateCompanyProfile = async (req, res) => {
   try {
@@ -167,21 +168,75 @@ export const getCompanyProfile = async (req, res) => {
   }
 };
 
+// Get all applicants for a company's posted jobs
+export const getCompanyApplicants = async (req, res) => {
+  try {
+    const companyId = req.user.userId;
+    // Fetch job postings for this company
+    const jobs = await JobPosting.find({ companyId }).select('title applications').lean();
+    console.log('getCompanyApplicants - jobs:', JSON.stringify(jobs, null, 2));
+    // Collect unique applicant IDs
+    const applicantIds = jobs.flatMap(job => job.applications.map(app => app.userId.toString()));
+    const uniqueIds = [...new Set(applicantIds)];
+
+    // Fetch seekers from JobSeeker collection
+    const seekers = await JobSeeker.find({ _id: { $in: uniqueIds } })
+      .select('name email phone_number desiredJobTitle education experienceLevel skills cvFile');
+    const seekerMap = seekers.reduce((map, seeker) => { map[seeker._id.toString()] = seeker; return map; }, {});
+
+    // Assemble applicants array
+    const finalApplicants = jobs.flatMap(job =>
+      job.applications.map(app => {
+        const seeker = seekerMap[app.userId.toString()];
+        if (!seeker) return null;
+        const parts = seeker.name.trim().split(/\s+/);
+        const firstName = parts.shift() || '';
+        const lastName = parts.join(' ') || '';
+        return {
+          _id: app._id,
+          userId: {
+            _id: seeker._id,
+            firstName,
+            lastName,
+            email: seeker.email,
+            phone_number: seeker.phone_number,
+            desiredJobTitle: seeker.desiredJobTitle,
+            education: seeker.education,
+            experienceLevel: seeker.experienceLevel,
+            skills: seeker.skills,
+            cvFile: seeker.cvFile
+          },
+          jobTitle: job.title,
+          applicationDate: app.applicationDate,
+          status: app.status
+        };
+      })
+    ).filter(item => item !== null);
+
+    return res.json({ success: true, applicants: finalApplicants });
+  } catch (error) {
+    console.error('Error fetching company applicants:', error);
+    return res.status(500).json({ success: false, message: 'Error fetching applicants', error: error.message });
+  }
+};
+
 // Export functions directly using named exports above
 export const getJobDetails = async (req, res) => {
   try {
+    const userId = req.user?.userId;
     const job = await JobPosting.findById(req.params.id)
       .populate('companyId', 'name logo')
-      .populate({
-        path: 'applications.userId',
-        select: 'firstName lastName email'
-      });
+      .populate({ path: 'applications.userId', select: 'firstName lastName email' });
     if (!job) {
-      return res.status(404).json({ message: 'Job not found' });
+      return res.status(404).json({ success: false, message: 'Job not found' });
     }
-    res.json(job);
+    let hasApplied = false;
+    if (userId) {
+      hasApplied = job.applications.some(app => app.userId._id.toString() === userId);
+    }
+    return res.json({ success: true, job, hasApplied });
   } catch (err) {
     console.error('Error getting job:', err);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ success: false, message: 'Server error', error: err.message });
   }
-}
+};

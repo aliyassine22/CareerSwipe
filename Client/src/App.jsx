@@ -27,10 +27,13 @@ import AdminDashboard from "./AdminPage/AdminDashboard";
 import AdminInitializer from "./AdminPage/AdminInitializer";
 
 // Company Pages
-import CompanyPage from "./CompanyPage/CompanyPage";
 import CompanyDetails from "./CompanyPage/CompanyDetails";
 import CreateJobPosting from "./CompanyPage/CreateJobPosting";
 import ManageJobPostings from "./CompanyPage/ManageJobPostings";
+import Applicants from "./CompanyPage/Applicants";
+import ChatCompany from "./CompanyPage/Chat";
+import Chats from "./SeekerPage/Chats";
+import ChatSeeker from "./SeekerPage/ChatSeeker";
 
 function App() {
   const location = useLocation();
@@ -68,6 +71,8 @@ function App() {
           <Route path="swipe" element={<SwipePage />} />
           {/* <Route path="saved-jobs" element={<div>Saved Jobs</div>} /> */}
           <Route path="history" element={<HistoryPage />} />
+          <Route path="messages" element={<Chats />} />
+          <Route path="messages/:companyId" element={<ChatSeeker />} />
         </Route>
         <Route path="/job/:id" element={<JobDetails />} />
 
@@ -84,6 +89,8 @@ function App() {
           <Route path="profile" element={<CompanyDetails />} />
           <Route path="create-job" element={<CreateJobPosting />} />
           <Route path="manage-jobs" element={<ManageJobPostings />} />
+          <Route path="applicants" element={<Applicants />} />
+          <Route path="chat/:applicantId" element={<ChatCompany />} />
         </Route>
 
         {/* Public Routes */}
@@ -94,7 +101,7 @@ function App() {
 
         {/* 404 Route */}
         {/* <Route path="*" element={<NotFound />} /> */}
-        <Route path="/CompanyPage" element={<CompanyPage />} />
+        {/* <Route path="/CompanyPage" element={<CompanyPage />} /> */}
       </Routes>
     </>
   );

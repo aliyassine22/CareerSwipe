@@ -21,7 +21,7 @@ export default function CompanySideNav() {
           'Content-Type': 'application/json'
         }
       });
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
     }

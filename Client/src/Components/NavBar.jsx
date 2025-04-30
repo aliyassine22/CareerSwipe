@@ -47,7 +47,7 @@ export default function NavBar() {
           </Link>
         ) : (
           <Link
-            to="/Login"
+            to="/login"
             className="bg-indigo-600 text-white font-medium py-2 px-6 rounded-full hover:bg-indigo-700 transition-all"
           >
             Login

@@ -22,7 +22,7 @@ export default function SeekerSideNav() {
           'Content-Type': 'application/json'
         }
       });
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
     }

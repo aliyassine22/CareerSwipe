@@ -185,15 +185,17 @@ export const getUserHistory = async (req, res) => {
     
     // Get all interactions for this user
     const interactions = await Interaction.find({ userId })
-      .populate('jobId', 'title company description salary')
-      .sort({ createdAt: -1 });
-
-    // Organize interactions by action
-    const history = {
-      likes: interactions.filter(interaction => interaction.action === 'like'),
-      passes: interactions.filter(interaction => interaction.action === 'pass')
-    };
-
+    .populate('jobId', 'title company description salary status') // Add 'status' here too
+    .sort({ createdAt: -1 });
+  
+  // Filter out null jobId references
+  const validInteractions = interactions.filter(i => i.jobId !== null);
+  
+  const history = {
+    likes: validInteractions.filter(i => i.action === 'like'),
+    passes: validInteractions.filter(i => i.action === 'pass')
+  };
+  
     res.json(history);
   } catch (err) {
     console.error('Error getting user history:', err);

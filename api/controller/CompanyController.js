@@ -225,11 +225,18 @@ export const getJobDetails = async (req, res) => {
   try {
     const userId = req.user?.userId;
     const job = await JobPosting.findById(req.params.id)
-      .populate('companyId', 'name logo')
-      .populate({ path: 'applications.userId', select: 'firstName lastName email' });
-    if (!job) {
-      return res.status(404).json({ success: false, message: 'Job not found' });
-    }
+  .populate('companyId', 'name logo')
+  .populate({ path: 'applications.userId', select: 'firstName lastName email' });
+
+if (!job) {
+  return res.status(404).json({ success: false, message: 'Job not found' });
+}
+
+// Add default if companyId is null
+if (!job.companyId) {
+  job.companyId = { name: 'Unknown Company', logo: null };
+}
+
     let hasApplied = false;
     if (userId) {
       hasApplied = job.applications.some(app => app.userId._id.toString() === userId);

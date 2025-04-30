@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 import JobPosting from '../models/JobPosting.js';
+import JobSeeker from '../models/JobSeeker.js';
+
+import { matchJobsToUser } from '../services/jobMatchingService.js';
 
 // Create a schema for job interactions
 const interactionSchema = new mongoose.Schema({
@@ -201,24 +204,32 @@ export const getUserHistory = async (req, res) => {
 export const getUnswipedJobs = async (req, res) => {
   try {
     const { userId } = req.params;
-    
-    // Get all job IDs that the user has already interacted with
-    const interactedJobs = await Interaction.find({ userId })
-      .distinct('jobId');
 
-    // Get all active jobs that the user hasn't interacted with
-    const jobs = await JobPosting.find({
+    const user = await JobSeeker.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const interactedJobs = await Interaction.find({ userId }).distinct('jobId');
+
+    const unswipedJobs = await JobPosting.find({
       _id: { $nin: interactedJobs },
       status: 'Active'
     })
-    .sort({ createdAt: -1 })
-    .limit(10); // Limit to 10 jobs at a time
+    .populate('companyId') 
+    .sort({ createdAt: -1 });
+    
 
-    res.json(jobs);
+    const matchedJobs = matchJobsToUser(user, unswipedJobs);
+
+    res.json(matchedJobs);
+
   } catch (err) {
     console.error('Error getting unswiped jobs:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
 
 export default { saveInteraction, getUserInteractions, getLikedJobs, getUserHistory, getUnswipedJobs };

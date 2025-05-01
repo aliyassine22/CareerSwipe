@@ -13,6 +13,9 @@ import CompanyRoutes from "./Router/companyRoutes.js";
 import JobRoutes from "./Router/jobRoutes.js";
 import adminRoutes from "./Router/adminRoutes.js"; // Import admin routes
 
+import openaiRoutes from './Router/openaiRoutes.js';
+
+
 // Ensure the file exists and exports a valid router object
 import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
@@ -97,6 +100,9 @@ app.use('/seeker', seekerRoutes);
 app.use('/company', CompanyRoutes);
 app.use('/company/jobs', JobRoutes);
 app.use('/admin', adminRoutes);
+
+app.use('/api/openai', openaiRoutes); // 
+
 
 app.use(session({
   secret: 'AliYassine', // Use a secure secret in production

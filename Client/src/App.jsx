@@ -5,6 +5,7 @@ import "./App.css";
 
 // Components
 import NavBar from "./components/NavBar";
+import ChatWidget from "./Components/ChatWidget"; // ✅ NEW
 
 // Layouts
 import SeekerLayout from "./components/Layout/SeekerLayout";
@@ -38,7 +39,6 @@ import ChatSeeker from "./SeekerPage/ChatSeeker";
 function App() {
   const location = useLocation();
 
-  // List of routes where we DO want the NavBar
   const publicRoutes = [
     "/",
     "/about",
@@ -69,7 +69,6 @@ function App() {
         <Route path="/seeker" element={<SeekerLayout />}>
           <Route path="profile" element={<SeekerProfile />} />
           <Route path="swipe" element={<SwipePage />} />
-          {/* <Route path="saved-jobs" element={<div>Saved Jobs</div>} /> */}
           <Route path="history" element={<HistoryPage />} />
           <Route path="messages" element={<Chats />} />
           <Route path="messages/:companyId" element={<ChatSeeker />} />
@@ -96,13 +95,9 @@ function App() {
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        {/* <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} /> */}
-
-        {/* 404 Route */}
-        {/* <Route path="*" element={<NotFound />} /> */}
-        {/* <Route path="/CompanyPage" element={<CompanyPage />} /> */}
       </Routes>
+
+      <ChatWidget /> {/* ✅ Widget on all pages */}
     </>
   );
 }

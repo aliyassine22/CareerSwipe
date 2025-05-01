@@ -97,7 +97,7 @@ const JobDetails = () => {
             </h1>
             <div className="flex items-center text-gray-600">
               <FontAwesomeIcon icon={faBriefcase} className="mr-2" />
-              <span className="font-medium">{job.companyId?.name || 'Unknown Company'}</span>
+              <span className="font-medium">{job.companyId?.fullName}</span>   {/* you may double check this (unknown company) */}
             </div>
           </div>
           <div className="flex items-center">

@@ -234,7 +234,7 @@ if (!job) {
 
 // Add default if companyId is null
 if (!job.companyId) {
-  job.companyId = { name: 'Unknown Company', logo: null };
+  job.companyId = { name: '', logo: null };
 }
 
     let hasApplied = false;

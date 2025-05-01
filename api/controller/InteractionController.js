@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 import JobPosting from '../models/JobPosting.js';
+import JobSeeker from '../models/JobSeeker.js';
+
+import { matchJobsToUser } from '../services/jobMatchingService.js';
 
 // Create a schema for job interactions
 const interactionSchema = new mongoose.Schema({
@@ -182,15 +185,17 @@ export const getUserHistory = async (req, res) => {
     
     // Get all interactions for this user
     const interactions = await Interaction.find({ userId })
-      .populate('jobId', 'title company description salary')
-      .sort({ createdAt: -1 });
-
-    // Organize interactions by action
-    const history = {
-      likes: interactions.filter(interaction => interaction.action === 'like'),
-      passes: interactions.filter(interaction => interaction.action === 'pass')
-    };
-
+    .populate('jobId', 'title company description salary status') // Add 'status' here too
+    .sort({ createdAt: -1 });
+  
+  // Filter out null jobId references
+  const validInteractions = interactions.filter(i => i.jobId !== null);
+  
+  const history = {
+    likes: validInteractions.filter(i => i.action === 'like'),
+    passes: validInteractions.filter(i => i.action === 'pass')
+  };
+  
     res.json(history);
   } catch (err) {
     console.error('Error getting user history:', err);
@@ -201,24 +206,32 @@ export const getUserHistory = async (req, res) => {
 export const getUnswipedJobs = async (req, res) => {
   try {
     const { userId } = req.params;
-    
-    // Get all job IDs that the user has already interacted with
-    const interactedJobs = await Interaction.find({ userId })
-      .distinct('jobId');
 
-    // Get all active jobs that the user hasn't interacted with
-    const jobs = await JobPosting.find({
+    const user = await JobSeeker.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const interactedJobs = await Interaction.find({ userId }).distinct('jobId');
+
+    const unswipedJobs = await JobPosting.find({
       _id: { $nin: interactedJobs },
       status: 'Active'
     })
-    .sort({ createdAt: -1 })
-    .limit(10); // Limit to 10 jobs at a time
+    .populate('companyId') 
+    .sort({ createdAt: -1 });
+    
 
-    res.json(jobs);
+    const matchedJobs = matchJobsToUser(user, unswipedJobs);
+
+    res.json(matchedJobs);
+
   } catch (err) {
     console.error('Error getting unswiped jobs:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
 
 export default { saveInteraction, getUserInteractions, getLikedJobs, getUserHistory, getUnswipedJobs };

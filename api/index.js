@@ -51,6 +51,9 @@ app.use(
   })
 );
 
+// Initialize sessions before routes
+app.use(session({ secret: 'AliYassine', resave: false, saveUninitialized: false, cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } }));
+
 // MongoDB connection string
 const mongoUrl = "mongodb+srv://ali123:ali321987@ac-qhiyeui.2v6kk0m.mongodb.net/?retryWrites=true&w=majority";
 
@@ -115,4 +118,3 @@ app.use(session({
 app.listen(4000, () => {
     console.log("Server running on http://localhost:4000");
   });
-  

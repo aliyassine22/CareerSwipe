@@ -21,15 +21,21 @@ export default function CompanySideNav() {
           'Content-Type': 'application/json'
         }
       });
-      navigate('/login');
+      
+      // Clear localStorage items
+      localStorage.removeItem('userType');
+      localStorage.removeItem('userId');
+      
+      // Use window.location for a full refresh to ensure proper state reset
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);
     }
   };
 
   return (
-    <div className="bg-gray-100 h-full min-h-screen w-64 border-r border-gray-300">
-      <div className="px-4 py-6">
+    <div className="bg-gray-100 h-full w-64 border-r border-gray-300 flex flex-col sticky top-0">
+      <div className="px-4 py-6 flex-grow overflow-y-auto">
         {/* Sidebar Header */}
         <div className="text-lg font-bold text-gray-800 mb-6 flex items-center">
           <FontAwesomeIcon icon={faBuilding} className="mr-2" />

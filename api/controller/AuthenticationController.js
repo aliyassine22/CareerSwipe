@@ -6,6 +6,19 @@ import multer from "multer";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 
+// Global session store to track active user sessions
+const activeSessions = new Map();
+
+// Function to cleanup expired sessions
+const cleanupSessions = () => {
+  const now = Date.now();
+  for (const [userId, session] of activeSessions.entries()) {
+    if (session.expiresAt < now) {
+      activeSessions.delete(userId);
+    }
+  }
+};
+
 
 
 const storage = multer.memoryStorage();
@@ -112,6 +125,8 @@ const registerJobSeeker = async (req, res) => {
 };
 
 const login = async (req, res) => {
+  // Ensure session object exists
+  req.session = req.session || {};
   const { email, password } = req.body;
 
   try {
@@ -128,6 +143,23 @@ const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password'
+      });
+    }
+
+    // Prevent login if another user type is already logged in in session
+    if (req.session.userType && req.session.userType !== userType) {
+      return res.status(403).json({
+        success: false,
+        message: 'Please logout first before logging in as another user'
+      });
+    }
+
+    // Check if user is already logged in elsewhere
+    const userId = user._id.toString();
+    if (activeSessions.has(userId)) {
+      return res.status(403).json({
+        success: false,
+        message: 'User is already logged in from another device. Please log out from other sessions first.'
       });
     }
 
@@ -154,18 +186,33 @@ const login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000 // 24 hours
     });
 
+    // Save login session
+    if (req.session) {
+      req.session.userId = userId;
+      req.session.userType = userType;
+      req.session.sessionId = req.sessionID; // Store the session ID
+      
+      // Track this session in our global store
+      activeSessions.set(userId, {
+        sessionId: req.sessionID,
+        userType,
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 24 hours expiry
+        loginTime: new Date().toISOString()
+      });
+    }
+
     // Determine user type and send appropriate response
     if (user.constructor.modelName === 'JobSeeker') {
       res.json({
         message: "Login successful",
         userType: 'seeker',
-        userId: user._id
+        userId: userId
       });
     } else {
       res.json({
         message: "Login successful",
         userType: 'company',
-        userId: user._id
+        userId: userId
       });
     }
   } catch (error) {
@@ -181,9 +228,18 @@ const logout = (req, res) => {
   // Clear the token cookie
   res.clearCookie('token');
   
+  // Remove user from active sessions
+  if (req.session && req.session.userId) {
+    activeSessions.delete(req.session.userId);
+  }
+  
   // Clear any session data if you're using sessions
   if (req.session) {
-    req.session.destroy();
+    req.session.destroy(err => {
+      if (err) {
+        console.error('Error destroying session:', err);
+      }
+    });
   }
   
   res.json({
@@ -192,4 +248,84 @@ const logout = (req, res) => {
   });
 };
 
-export default { registerCompany, registerJobSeeker, registerJobSeekerMiddleware, login, logout };
+// Create a function to check the authentication status
+const checkAuthStatus = (req, res) => {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({
+      authenticated: false,
+      message: 'Not authenticated'
+    });
+  }
+  
+  const userId = req.session.userId;
+  const userSession = activeSessions.get(userId);
+  
+  if (!userSession) {
+    return res.status(401).json({
+      authenticated: false,
+      message: 'Session expired or not found'
+    });
+  }
+  
+  // Session exists and is valid
+  return res.json({
+    authenticated: true,
+    userType: req.session.userType,
+    userId: userId
+  });
+};
+
+// Force logout a specific user (admin function)
+const forceLogout = (req, res) => {
+  const { userId } = req.params;
+  
+  if (!userId) {
+    return res.status(400).json({
+      success: false,
+      message: 'User ID is required'
+    });
+  }
+  
+  if (activeSessions.has(userId)) {
+    activeSessions.delete(userId);
+    return res.json({
+      success: true,
+      message: 'User has been forcefully logged out'
+    });
+  } else {
+    return res.status(404).json({
+      success: false,
+      message: 'User is not currently logged in'
+    });
+  }
+};
+
+// Get all active sessions (admin function)
+const getActiveSessions = (req, res) => {
+  const sessions = [];
+  for (const [userId, session] of activeSessions.entries()) {
+    sessions.push({
+      userId,
+      ...session
+    });
+  }
+  
+  return res.json({
+    success: true,
+    sessions
+  });
+};
+
+// Set up periodic cleanup every hour
+setInterval(cleanupSessions, 3600000);
+
+export default { 
+  registerCompany, 
+  registerJobSeeker, 
+  registerJobSeekerMiddleware, 
+  login, 
+  logout,
+  checkAuthStatus,
+  forceLogout,
+  getActiveSessions
+};

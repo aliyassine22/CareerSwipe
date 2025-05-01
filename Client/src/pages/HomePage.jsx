@@ -2,6 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 export default function HomePage() {
+  // Determine logged-in user type from localStorage
+  const userType = localStorage.getItem('userType');
+
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -23,6 +26,21 @@ export default function HomePage() {
                   >
                     Get Started
                   </Link>
+                  {!userType ? (
+                    <Link
+                      to="/login"
+                      className="rounded-md bg-green-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500"
+                    >
+                      Login
+                    </Link>
+                  ) : (
+                    <Link
+                      to={userType === 'seeker' ? '/seeker/profile' : '/company/profile'}
+                      className="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500"
+                    >
+                      Go to Dashboard
+                    </Link>
+                  )}
                   <Link to="/about" className="text-sm font-semibold leading-6 text-gray-900">
                     Learn more <span aria-hidden="true">→</span>
                   </Link>

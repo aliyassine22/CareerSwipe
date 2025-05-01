@@ -1,14 +1,29 @@
 // openaiRoutes.js
 import express from 'express';
 import OpenAI from 'openai';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path'; // Importing the path module
+import path from 'path'; // Import path to use in the dotenv config
 
 const router = express.Router();
 
 // 🔐 WARNING: This is your actual secret key.
 // NEVER expose this key publicly in production code or client-side apps.
-const openai = new OpenAI({
-  apiKey: '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', // replace this with the full valid key
+
+// Get the current directory name
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config({
+  path: path.join(__dirname, '.env'), // Ensure the .env file is loaded from the correct path
 });
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, // Load the API key from the .env file
+});
+
+// Use the 'openai' object as needed
 
 router.post('/chatbot', async (req, res) => {
   const { message } = req.body;
